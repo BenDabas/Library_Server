@@ -19,16 +19,22 @@ namespace Library_Server.Services
             _mapper = mapper;
         }
 
-        public async Task<ServiceResponse<List<WishlistItem>>> AddWishListItem(AddWishlistItemDto addWishlistItemDto)
+        public async Task<ServiceResponse<List<WishlistItem>>> AddWishListItem(AddWishlistItemDto addWishlistItemDto, string userId)
         {
             _logger.LogInformation("Start: WishlistService/AddWishListItem");
             var serviceResponse = new ServiceResponse<List<WishlistItem>>();
-            var wishListItem = _mapper.Map<WishlistItem>(addWishlistItemDto);
-
-            _context.Wishlists.Add(wishListItem);
+            var wishlistItem = _mapper.Map<WishlistItem>(addWishlistItemDto);
+            wishlistItem.UserId = userId;
+            var isDuplicatedWishlistItem = _context.Wishlists.Where(w => w.BookId == addWishlistItemDto.BookId);
+            if (isDuplicatedWishlistItem != null)
+            {
+                _logger.LogError("Error: WishlistService/AddWishListItem: Duplicate BookId", addWishlistItemDto.BookId);
+                throw new Exception($"Error: WishlistService/AddWishListItem: Duplicate BookId = {addWishlistItemDto.BookId}");
+            }
+            _context.Wishlists.Add(wishlistItem);
             await _context.SaveChangesAsync();
 
-            serviceResponse.Data = _context.Wishlists.Where(w => w.UserId == wishListItem.UserId).ToList();
+            serviceResponse.Data = _context.Wishlists.AsNoTracking().Where(w => w.UserId == wishlistItem.UserId).ToList();
             _logger.LogInformation("End: WishlistService/AddWishListItem");
             return serviceResponse;
         }
@@ -54,17 +60,16 @@ namespace Library_Server.Services
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<List<WishlistItem>>> DeleteWishlistItem(DeleteWishlistItem deleteWishlistItem)
+        public async Task<ServiceResponse<List<WishlistItem>>> DeleteWishlistItem(DeleteWishlistItem deleteWishlistItem, string userId)
         {
             _logger.LogInformation("Start: WishlistService/DeleteWishlistItem");
             var serviceResponse = new ServiceResponse<List<WishlistItem>>();
-
-            var wishlistItem = await _context.Wishlists.SingleOrDefaultAsync(w => w.UserId == deleteWishlistItem.UserId && w.BookId == deleteWishlistItem.BookId);
+            var wishlistItem = await _context.Wishlists.SingleOrDefaultAsync(w => w.UserId == userId && w.BookId == deleteWishlistItem.BookId);
 
             if (wishlistItem == null)
             {
-                var messageResponse = "Book " + deleteWishlistItem.BookId + "not found in user id " + deleteWishlistItem.UserId + "wishlist.";
-                _logger.LogInformation(messageResponse);
+                var messageResponse = "Book " + deleteWishlistItem.BookId + " not found in user id " + userId + "wishlist.";
+                _logger.LogError(messageResponse);
                 serviceResponse.Success = false;
                 serviceResponse.Message = messageResponse;
                 _logger.LogInformation("End: WishlistService/DeleteWishlistItem");
@@ -73,7 +78,11 @@ namespace Library_Server.Services
 
             _context.Wishlists.Remove(wishlistItem);
             await _context.SaveChangesAsync();
-            serviceResponse.Data = await _context.Wishlists.Where(w => w.UserId == deleteWishlistItem.UserId).ToListAsync();
+            serviceResponse.Data = await _context.Wishlists
+                .AsNoTracking()
+                .Where(w => w.UserId == userId)
+                .ToListAsync();
+
             _logger.LogInformation("End: WishlistService/DeleteWishlistItem");
             return serviceResponse;
         }

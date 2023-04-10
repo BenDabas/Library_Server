@@ -1,9 +1,11 @@
 ﻿using Library_Server.Dtos.WishList;
 using Library_Server.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Library_Server.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class WishlistController : ControllerBase
@@ -23,7 +25,7 @@ namespace Library_Server.Controllers
             try
             {
                 _logger.LogInformation("Start: WishlistController/AddBookToUserWishlist");
-                return Ok(await _wishlistService.AddWishListItem(addWishlistItemDto));
+                return Ok(await _wishlistService.AddWishListItem(addWishlistItemDto, GetUserIdFromToken()));
             }
             catch (Exception ex)
             {
@@ -33,13 +35,13 @@ namespace Library_Server.Controllers
         } 
 
 
-        [HttpGet("{userId}")]
-        public async Task<ActionResult<List<AddWishlistItemDto>>> GetUserBooksWishlist(string userId)
+        [HttpGet]
+        public async Task<ActionResult<List<AddWishlistItemDto>>> GetUserBooksWishlist()
         {
             try
             {
                 _logger.LogInformation("Start: WishlistController/GetUserBooksWishlist");
-                return Ok(await _wishlistService.GetWishlistByUserId(userId));
+                return Ok(await _wishlistService.GetWishlistByUserId(GetUserIdFromToken()));
             }
             catch (Exception ex)
             {
@@ -54,13 +56,21 @@ namespace Library_Server.Controllers
             try
             {
                 _logger.LogInformation("Start: WishlistController/DeleteBookFromUserWishlist");
-                return Ok(await _wishlistService.DeleteWishlistItem(deleteWishlistItem));
+                return Ok(await _wishlistService.DeleteWishlistItem(deleteWishlistItem, GetUserIdFromToken()));
             }
             catch (Exception ex)
             {
                 _logger.LogError("Error in WishlistController/DeleteBookFromUserWishlist", ex.Message);
                 return BadRequest(ex.Message);
             }
+        }
+
+        private string GetUserIdFromToken()
+        {
+            if (HttpContext.Items.TryGetValue("UserId", out var userIdObj))
+                return (userIdObj.ToString());
+
+            return string.Empty;
         }
     }
 }

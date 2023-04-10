@@ -1,11 +1,12 @@
-﻿using Azure;
-using Library_Server.Dtos.Review;
+﻿using Library_Server.Dtos.Review;
 using Library_Server.Models;
 using Library_Server.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Library_Server.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ReviewController : ControllerBase
@@ -20,12 +21,12 @@ namespace Library_Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<Review>>> AddReview(AddReviewDto review)
+        public async Task<ActionResult<List<Review>>> AddReview(AddReviewDto addReviewDto)
         {
             try
             {
                 _logger.LogInformation("Start: ReviewController/AddReview");
-                return Ok(await _reviewService.AddReview(review));
+                return Ok(await _reviewService.AddReview(addReviewDto, GetUserIdFromToken()));
             }
             catch (Exception ex)
             {
@@ -40,7 +41,7 @@ namespace Library_Server.Controllers
             try
             {
                 _logger.LogInformation("Start: ReviewController/GetReviewByBook");
-                var response = await _reviewService.GetReviewByBookId(bookId);
+                var response = await _reviewService.GetReviewByBookId(bookId, GetUserIdFromToken());
                 if (response.Data == null)
                 {
                     return NotFound(response);
@@ -54,13 +55,13 @@ namespace Library_Server.Controllers
             }
         }
 
-        [HttpGet("getByUserId/{userId}")]
-        public async Task<ActionResult<List<Review>>> GetReviewByUser(string userId)
+        [HttpGet("getByUserId")]
+        public async Task<ActionResult<List<Review>>> GetReviewByUser()
         {
             try
             {
                 _logger.LogInformation("Start: ReviewController/GetReviewByBook");
-                var response = await _reviewService.GetReviewByUserId(userId);
+                var response = await _reviewService.GetReviewByUserId(GetUserIdFromToken());
                 if (response.Data == null)
                 {
                     return NotFound(response);
@@ -81,7 +82,7 @@ namespace Library_Server.Controllers
             try
             {
                 _logger.LogInformation("Start: ReviewController/UpdateReview");
-                var response = await _reviewService.UpdateReviewContent(review);
+                var response = await _reviewService.UpdateReviewContent(review, GetUserIdFromToken());
                 if (response.Data == null)
                 {
                     return NotFound(response);
@@ -101,7 +102,7 @@ namespace Library_Server.Controllers
             try
             {
                 _logger.LogInformation("Start: ReviewController/DeleteReview");
-                var response = await _reviewService.DeleteReview(ReviewId);
+                var response = await _reviewService.DeleteReview(ReviewId, GetUserIdFromToken());
                 if (response.Data == null)
                 {
                     return NotFound(response);
@@ -113,6 +114,14 @@ namespace Library_Server.Controllers
                 _logger.LogError("Error in ReviewController/DeleteReview", ex.Message);
                 return BadRequest(ex.Message);
             }
+        }
+
+        private string GetUserIdFromToken()
+        {
+            if(HttpContext.Items.TryGetValue("UserId", out var userIdObj))
+                return(userIdObj.ToString());
+
+            return string.Empty;
         }
     }
 }
