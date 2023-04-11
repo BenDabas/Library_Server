@@ -12,6 +12,7 @@ namespace Library_Server.DB
         public DbSet<Review> Reviews { get; set; }
         public DbSet<WishlistItem> Wishlists { get; set; }
         public DbSet<IdentityUserClaim<string>> UserClaims { get; set; }
+        public DbSet<RevokedToken> RevokedTokens { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         { }

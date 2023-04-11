@@ -16,14 +16,42 @@ namespace Library_Server.Controllers
         [HttpPost("login")]
         public async Task<ActionResult> Login([FromBody] LoginRequestDto loginRequestDto)
         {
-            var authenticatedUser = _authService.AuthenticateUser(loginRequestDto.Username, loginRequestDto.Password);
+            try
+            {
+                var authenticatedUser = _authService.AuthenticateUser(loginRequestDto.Username, loginRequestDto.Password);
 
-            if (authenticatedUser == null)
-                return BadRequest("Username or password is incorrect.");
+                if (authenticatedUser == null)
+                    return BadRequest("Username or password is incorrect.");
 
-            var token = _authService.GenerateToken(authenticatedUser);
+                var token = _authService.GenerateToken(authenticatedUser);
 
-            return Ok(new { Token = token });
+                return Ok(new { Token = token });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("logout")]
+        public async Task<ActionResult> Logout()
+        {
+            try
+            {
+                var authorizationHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+                if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
+                {
+                    return BadRequest("Invalid token.");
+                }
+                var tokenStr = authorizationHeader.Substring("Bearer ".Length).Trim();
+
+                await _authService.AddRevokedToken(new LogoutRequestDto(tokenStr));
+                return Ok("Logout success");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

@@ -20,12 +20,12 @@ namespace Library_Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Book>>> GetBooks()
+        public async Task<ActionResult<List<Book>>> GetBooks(int pageIndex = 0, int pageSize = 10) //Path should be: api/books?pageIndex=0&pageSize=10 => Query parameters.
         {
             try
             {
                 _logger.LogInformation("Start: BookController/GetBooks");
-                var books = await _bookService.GetBooks();
+                var books = await _bookService.GetBooks(pageIndex, pageSize);
                 _logger.LogInformation("End: BookController/GetBooks");
 
                 return Ok(books);

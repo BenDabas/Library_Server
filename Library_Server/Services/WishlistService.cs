@@ -3,6 +3,7 @@ using Library_Server.DB;
 using Library_Server.Dtos.WishList;
 using Library_Server.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Library_Server.Services
 {
@@ -25,8 +26,8 @@ namespace Library_Server.Services
             var serviceResponse = new ServiceResponse<List<WishlistItem>>();
             var wishlistItem = _mapper.Map<WishlistItem>(addWishlistItemDto);
             wishlistItem.UserId = userId;
-            var isDuplicatedWishlistItem = _context.Wishlists.Where(w => w.BookId == addWishlistItemDto.BookId);
-            if (isDuplicatedWishlistItem != null)
+            var isDuplicatedWishlistItem = _context.Wishlists.Where(w => w.BookId == addWishlistItemDto.BookId && w.UserId == userId);
+            if (!isDuplicatedWishlistItem.IsNullOrEmpty())
             {
                 _logger.LogError("Error: WishlistService/AddWishListItem: Duplicate BookId", addWishlistItemDto.BookId);
                 throw new Exception($"Error: WishlistService/AddWishListItem: Duplicate BookId = {addWishlistItemDto.BookId}");

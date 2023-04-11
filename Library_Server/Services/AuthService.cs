@@ -1,8 +1,10 @@
 ﻿using Library_Server.DB;
+using Library_Server.Dtos.User;
 using Library_Server.Models;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Crypto.Generators;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -25,10 +27,18 @@ namespace Library_Server.Services
         public User AuthenticateUser(string username, string password)
         {
             var user = _context.Users.SingleOrDefault(u => u.UserName == username);
-            if(user == null || !VerifyPassword(password, user.HashPassword))
+            if (user == null || !VerifyPassword(password, user.HashPassword))
                 return null;
-            
             return user;
+        }
+
+        public async Task AddRevokedToken(LogoutRequestDto logoutRequestDto)
+        {
+            var jwtToken = new JwtSecurityToken(logoutRequestDto.Token);
+            var revokedToken = new RevokedToken(logoutRequestDto.Token, jwtToken.ValidTo);
+
+            _context.RevokedTokens.Add(revokedToken);
+            await _context.SaveChangesAsync();
         }
 
         public string GenerateToken(User user)

@@ -1,11 +1,13 @@
 using Library_Server.DB;
 using Library_Server.Middlewares;
 using Library_Server.Models;
+using Library_Server.Models.BookApi;
 using Library_Server.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -24,6 +26,9 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<BookService>();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddHttpClient();
+builder.Services.Configure<GoogleBooksApiConfiguration>(builder.Configuration.GetSection("GoogleBooks"));
+builder.Services.AddSingleton(x => x.GetRequiredService<IOptions<GoogleBooksApiConfiguration>>().Value);
+
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -112,6 +117,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseMiddleware<ExtractUserIdMiddleware>();
+app.UseMiddleware<CheckInvokedTokensMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

@@ -15,10 +15,10 @@ namespace Library_Server.Middlewares
             _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context)
+        public async Task InvokeAsync(HttpContext httpContext)
         {
             _logger.LogInformation("Start: ExtractUserIdMiddleware");
-            var authorizationHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+            var authorizationHeader = httpContext.Request.Headers["Authorization"].FirstOrDefault();
             if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
             {
                 var tokenStr = authorizationHeader.Substring("Bearer ".Length).Trim();
@@ -28,11 +28,11 @@ namespace Library_Server.Middlewares
 
                 if (userIdClaim != null)
                 {
-                    context.Items["UserId"] = userIdClaim.Value;
+                    httpContext.Items["UserId"] = userIdClaim.Value;
                 }
             }
             _logger.LogInformation("End: ExtractUserIdMiddleware");
-            await _next(context);
+            await _next(httpContext);
         }
     }
 }

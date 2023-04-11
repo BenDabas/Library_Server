@@ -10,20 +10,24 @@ namespace Library_Server.Services
     {
         private readonly ILogger _logger;
         private readonly HttpClient _httpClient;
+        private readonly GoogleBooksApiConfiguration _googleBooksApiConfiguration;
 
-        public BookService(ILogger<BookService> logger, HttpClient httpClient)
+        private readonly string Subject = "subject=thriller";
+
+        public BookService(ILogger<BookService> logger, HttpClient httpClient, GoogleBooksApiConfiguration googleBooksApiConfiguration)
         {
             _logger = logger;
             _httpClient = httpClient;
+            _googleBooksApiConfiguration = googleBooksApiConfiguration;
         }
 
-        public async Task<List<Book>> GetBooks()
+        public async Task<List<Book>> GetBooks(int pageIndex = 0, int pageSize = 10)
         {
             _logger.LogInformation("Start: BookService/GetBooks");
-            var apiKey = "AIzaSyAAofAsb91eqLbY7B-I_NHpunsyhJTZ25g";
-            //var query = "flowers+inauthor:keyes";
-            var query = "subject=thriller";
-            var url = $"https://www.googleapis.com/books/v1/volumes?q={query}&key={apiKey}&maxResults=10";
+
+            var apiKey = _googleBooksApiConfiguration.ApiKey;
+            var startIndex = pageIndex * pageSize;
+            var url = $"https://www.googleapis.com/books/v1/volumes?q={Subject}&key={apiKey}&maxResults={pageSize}&startIndex={startIndex}";
 
             var response = await _httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
