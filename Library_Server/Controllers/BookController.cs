@@ -29,10 +29,10 @@ namespace Library_Server.Controllers
                 _logger.LogInformation("End: BookController/GetBooks");
 
                 return Ok(books);
-            } 
+            }
             catch (Exception ex)
             {
-                return  BadRequest(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
     }

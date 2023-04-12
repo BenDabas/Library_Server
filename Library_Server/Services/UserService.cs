@@ -1,7 +1,6 @@
 ﻿using Library_Server.DB;
 using Library_Server.Dtos.User;
 using Library_Server.Models;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 namespace Library_Server.Services

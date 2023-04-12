@@ -5,12 +5,12 @@ using Library_Server.Models;
 
 namespace Library_Server.Services
 {
-    public class AutoMapperProfile: Profile
+    public class AutoMapperProfile : Profile
     {
-        public AutoMapperProfile() {
+        public AutoMapperProfile()
+        {
             CreateMap<AddReviewDto, Review>();
             CreateMap<AddWishlistItemDto, WishlistItem>();
-        }  
-        
+        }
     }
 }

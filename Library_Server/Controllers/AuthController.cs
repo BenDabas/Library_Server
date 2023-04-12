@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Library_Server.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly AuthService _authService;
@@ -14,7 +16,7 @@ namespace Library_Server.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult> Login([FromBody] LoginRequestDto loginRequestDto)
+        public ActionResult Login([FromBody] LoginRequestDto loginRequestDto)
         {
             try
             {

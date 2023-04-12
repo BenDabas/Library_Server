@@ -69,7 +69,7 @@ namespace Library_Server.Services
 
             if (wishlistItem == null)
             {
-                var messageResponse = "Book " + deleteWishlistItem.BookId + " not found in user id " + userId + "wishlist.";
+                var messageResponse = "Book " + deleteWishlistItem.BookId + " not found in user id " + userId + " wishlist.";
                 _logger.LogError(messageResponse);
                 serviceResponse.Success = false;
                 serviceResponse.Message = messageResponse;

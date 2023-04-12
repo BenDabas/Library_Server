@@ -118,8 +118,8 @@ namespace Library_Server.Controllers
 
         private string GetUserIdFromToken()
         {
-            if(HttpContext.Items.TryGetValue("UserId", out var userIdObj))
-                return(userIdObj.ToString());
+            if (HttpContext.Items.TryGetValue("UserId", out var userIdObj))
+                return (userIdObj.ToString());
 
             return string.Empty;
         }

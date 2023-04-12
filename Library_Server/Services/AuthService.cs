@@ -1,14 +1,9 @@
 ﻿using Library_Server.DB;
 using Library_Server.Dtos.User;
 using Library_Server.Models;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json.Linq;
-using Org.BouncyCastle.Crypto.Generators;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace Library_Server.Services

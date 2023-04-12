@@ -32,7 +32,7 @@ namespace Library_Server.Controllers
                 _logger.LogError("Error in WishlistController/AddBookToUserWishlist", ex.Message);
                 return BadRequest(ex.Message);
             }
-        } 
+        }
 
 
         [HttpGet]

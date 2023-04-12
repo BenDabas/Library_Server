@@ -69,7 +69,7 @@ namespace Library_Server.Services
         {
             _logger.LogInformation("Start: ReviewService/DeleteReview");
             var serviceResponse = new ServiceResponse<List<Review>>();
-            var deletedReview = await _context.Reviews          
+            var deletedReview = await _context.Reviews
                 .SingleOrDefaultAsync(r => r.Id == reviewId && r.UserId == userId);
             if (deletedReview == null)
             {

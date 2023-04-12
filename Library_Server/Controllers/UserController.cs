@@ -25,8 +25,8 @@ namespace Library_Server.Controllers
             {
                 var user = await _userService.AddUser(registerRequestDto);
                 return CreatedAtAction(nameof(Register), new { id = user.Id }, user);
-            }   
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
